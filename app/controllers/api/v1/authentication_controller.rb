@@ -1,7 +1,21 @@
 module API::V1
   class AuthenticationController < APIController
     def login
-      render json: User.all.first.to_json
+      @user = User.find_by_email(params[:email])
+      if @user&.authenticate(params[:password])
+        exp = Time.now + 24.hours.to_i
+        payload = { user_id: @user.id }
+        token = JsonWebToken.encode(payload, exp)
+        render json: { token: token, exp: exp.strftime("%m-%d-%Y %H:%M"), email: @user.email }, status: :ok
+      else
+        render json: { error: 'unauthorized' }, status: :unauthorized
+      end
+    end
+
+    private
+
+    def login_params
+      params.permit(:email, :password)
     end
   end
 end
