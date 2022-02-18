@@ -12,6 +12,7 @@ describe "/api/v1/login" do
 
     it "logs the existing user in" do
       post "/api/v1/login", params: { email: user.email, password: "password" }
+
       expect(response).to have_http_status :success
       expect(response_json.keys).to contain_exactly :token, :exp, :email
       expect(response_json[:token]).to eq stubbed_token

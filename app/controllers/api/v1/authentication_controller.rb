@@ -3,10 +3,11 @@ module API::V1
     def login
       @user = User.find_by_email(params[:email])
       if @user&.authenticate(params[:password])
-        exp = Time.now + 24.hours.to_i
+        @exp = Time.now + 24.hours.to_i
         payload = { user_id: @user.id }
-        token = JsonWebToken.encode(payload, exp)
-        render json: { token: token, exp: exp.strftime("%m-%d-%Y %H:%M"), email: @user.email }, status: :ok
+        @token = JsonWebToken.encode(payload, @exp)
+
+        render "users/show"
       else
         render json: { error: 'unauthorized' }, status: :unauthorized
       end
